@@ -1,13 +1,13 @@
 package main
 
 import (
-	"adventofcode2021/tools/fileparser"
+	"adventofcode2021/pkg/fileparser"
 	"constraints"
 	"fmt"
 )
 
 func main() {
-	measurements := fileparser.ReadInts("day01/input.txt")
+	measurements := fileparser.ReadSingles[int]("day01/input.txt")
 	calculateDiffCounts(measurements, 1)
 	calculateDiffCounts(measurements, 3)
 }
