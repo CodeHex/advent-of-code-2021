@@ -1,6 +1,7 @@
 package bits
 
 import (
+	"bytes"
 	"strconv"
 )
 
@@ -30,15 +31,15 @@ func (b BitField) Get(pos int) bool {
 }
 
 func (b BitField) Invert() BitField {
-	inverted := ""
+	var inverted bytes.Buffer
 	for _, c := range b.str {
 		if c == '0' {
-			inverted = inverted + "1"
+			inverted.WriteString("1")
 		} else {
-			inverted = inverted + "0"
+			inverted.WriteString("0")
 		}
 	}
-	result, err := NewBitField(inverted)
+	result, err := NewBitField(inverted.String())
 	if err != nil {
 		panic(err)
 	}

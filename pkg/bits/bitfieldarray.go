@@ -2,6 +2,7 @@ package bits
 
 import (
 	"adventofcode2021/pkg/slices"
+	"bytes"
 	"fmt"
 )
 
@@ -25,16 +26,16 @@ func (b BitFieldArray) MostCommon() BitField {
 	}
 
 	// Create a bitfield where each 1 indicates that position had half or more
-	resultStr := ""
+	var resultBytes bytes.Buffer
 	for _, count := range counts {
 		if 2*count >= len(b) {
-			resultStr = resultStr + "1"
+			resultBytes.WriteString("1")
 		} else {
-			resultStr = resultStr + "0"
+			resultBytes.WriteString("0")
 		}
 	}
 
-	result, err := NewBitField(resultStr)
+	result, err := NewBitField(resultBytes.String())
 	if err != nil {
 		panic(err)
 	}
