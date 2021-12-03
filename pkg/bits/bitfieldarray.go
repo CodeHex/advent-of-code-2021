@@ -61,13 +61,10 @@ func (b BitFieldArray) ReduceToRating(useCommon bool) BitField {
 	possibleResults := b
 	for pos := 0; pos < b[0].Length; pos++ {
 		possibleResults = possibleResults.FilterByPos(pos, useCommon)
-		if len(possibleResults) == 1 {
-			break
+		if val, ok := slices.IsSingle(possibleResults); ok {
+			return val
 		}
 	}
 
-	if len(possibleResults) != 1 {
-		panic(fmt.Sprintf("reduction failed to find 1 result %v", possibleResults))
-	}
-	return possibleResults[0]
+	panic(fmt.Sprintf("reduction failed to find 1 result %v", possibleResults))
 }
