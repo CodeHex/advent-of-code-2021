@@ -1,9 +1,12 @@
 package convert
 
-import "strconv"
+import (
+	"adventofcode2021/pkg/bits"
+	"strconv"
+)
 
 type Convertable interface {
-	string | int
+	string | int | bits.BitField
 }
 
 func stringConvert[T Convertable](x string) T {
@@ -18,6 +21,14 @@ func intConvert[T Convertable](x string) T {
 	return (interface{})(r).(T)
 }
 
+func bitFieldConvert[T Convertable](x string) T {
+	r, err := bits.NewBitField(x)
+	if err != nil {
+		panic(err)
+	}
+	return (interface{})(r).(T)
+}
+
 func FuncFor[T Convertable]() func(string) T {
 	val := *new(T)
 	switch (interface{})(val).(type) {
@@ -25,6 +36,8 @@ func FuncFor[T Convertable]() func(string) T {
 		return stringConvert[T]
 	case int:
 		return intConvert[T]
+	case bits.BitField:
+		return bitFieldConvert[T]
 	default:
 		panic("unsupported converter")
 	}
