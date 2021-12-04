@@ -44,3 +44,31 @@ func ReadPairs[T, U convert.Convertable](filename string) []tuples.Pair[T, U] {
 	}
 	return result
 }
+
+func ReadLines(filename string) []string {
+	return ReadSingles[string](filename)
+}
+
+// Split will split a string similar to strings.Split, but convert the result to the appriopriate type
+func Split[T convert.Convertable](str string, sep string) []T {
+	parts := strings.Split(str, sep)
+	result := make([]T, len(parts))
+	converter := convert.FuncFor[T]()
+	for i, part := range parts {
+		result[i] = converter(part)
+	}
+	return result
+}
+
+// SplitTrim will split a string similar to Split, but ignore any empty results
+func SplitTrim[T convert.Convertable](str string, sep string) []T {
+	parts := strings.Split(str, sep)
+	result := []T{}
+	converter := convert.FuncFor[T]()
+	for _, part := range parts {
+		if part != "" {
+			result = append(result, converter(part))
+		}
+	}
+	return result
+}
