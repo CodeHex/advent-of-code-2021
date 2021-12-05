@@ -49,6 +49,15 @@ func ReadLines(filename string) []string {
 	return ReadSingles[string](filename)
 }
 
+func ReadTypedLines[T any](filename string, constructor func(string) T) []T {
+	lines := ReadLines(filename)
+	result := make([]T, len(lines))
+	for i, data := range lines {
+		result[i] = constructor(data)
+	}
+	return result
+}
+
 // Split will split a string similar to strings.Split, but convert the result to the appriopriate type
 func Split[T convert.Convertable](str string, sep string) []T {
 	parts := strings.Split(str, sep)
@@ -60,14 +69,14 @@ func Split[T convert.Convertable](str string, sep string) []T {
 	return result
 }
 
-// SplitTrim will split a string similar to Split, but ignore any empty results
+// SplitTrim will split a string similar to Split, but ignore any empty results and trim data
 func SplitTrim[T convert.Convertable](str string, sep string) []T {
 	parts := strings.Split(str, sep)
 	result := []T{}
 	converter := convert.FuncFor[T]()
 	for _, part := range parts {
 		if part != "" {
-			result = append(result, converter(part))
+			result = append(result, converter(strings.TrimSpace(part)))
 		}
 	}
 	return result
