@@ -2,6 +2,7 @@ package main
 
 import (
 	"adventofcode2021/pkg/fileparser"
+	"adventofcode2021/pkg/maps"
 	"adventofcode2021/pkg/slices"
 	"fmt"
 	"strings"
@@ -83,13 +84,8 @@ func (f Floor) PrintFloor() {
 }
 
 func (f Floor) Overlaps() int {
-	total := 0
-	for overlapCount, numOfOverlaps := range f.stats {
-		if overlapCount >= 2 {
-			total += numOfOverlaps
-		}
-	}
-	return total
+	selectFunc := func(key int) bool { return key >= 2 }
+	return maps.SumValuesFor(f.stats, selectFunc)
 }
 
 type VentWalker struct {
