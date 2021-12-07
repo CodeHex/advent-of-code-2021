@@ -64,3 +64,44 @@ func Max[T constraints.Ordered](source []T) T {
 	}
 	return maxVal
 }
+
+// Min determines the minimum value in a slice of ordered values
+func Min[T constraints.Ordered](source []T) T {
+	var minVal T
+	if len(source) != 0 {
+		minVal = source[0]
+	}
+	for _, val := range source {
+		if val < minVal {
+			minVal = val
+		}
+	}
+	return minVal
+}
+
+// MinMax determines the minimum and maximum value in a slice of ordered values efficiently
+func MinMax[T constraints.Ordered](source []T) (T, T) {
+	var minVal T
+	var maxVal T
+	if len(source) != 0 {
+		minVal = source[0]
+	}
+	for _, val := range source {
+		if val < minVal {
+			minVal = val
+		}
+		if val > maxVal {
+			maxVal = val
+		}
+	}
+	return minVal, maxVal
+}
+
+// SumWeighted will sum all values in the slice using the provided weighting function
+func SumWeighted[T, U constraints.Integer](source []T, weightFunc func(T) U) U {
+	var total U
+	for _, entry := range source {
+		total += weightFunc(entry)
+	}
+	return total
+}
