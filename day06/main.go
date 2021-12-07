@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	input := fileparser.ReadLines("day06/input.txt")
-	startingFish := fileparser.Split[int](input[0], ",")
+	startingFish := fileparser.ReadCSVLine[int]("day06/input.txt")
 	stats := NewFishStats(startingFish)
 
 	// Progress for 80 days

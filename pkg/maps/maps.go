@@ -21,3 +21,22 @@ func SumValuesFor[T comparable, U constraints.Integer](source map[T]U, predicate
 	}
 	return total
 }
+
+// MinValue will return the entry with the smallest value
+func MinValue[T constraints.Integer, U constraints.Integer](source map[T]U) (T, U) {
+	started := false
+	var minKey T
+	var minVal U
+	for key, val := range source {
+		if !started {
+			minKey = key
+			minVal = val
+			started = true
+		}
+		if val < minVal {
+			minKey = key
+			minVal = val
+		}
+	}
+	return minKey, minVal
+}

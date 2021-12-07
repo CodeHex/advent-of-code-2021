@@ -58,6 +58,11 @@ func ReadTypedLines[T any](filename string, constructor func(string) T) []T {
 	return result
 }
 
+func ReadCSVLine[T convert.Convertable](filename string) []T {
+	lines := ReadLines(filename)
+	return Split[T](lines[0], ",")
+}
+
 // Split will split a string similar to strings.Split, but convert the result to the appriopriate type
 func Split[T convert.Convertable](str string, sep string) []T {
 	parts := strings.Split(str, sep)
