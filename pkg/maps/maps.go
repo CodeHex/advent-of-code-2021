@@ -40,3 +40,25 @@ func MinValue[T constraints.Integer, U constraints.Integer](source map[T]U) (T, 
 	}
 	return minKey, minVal
 }
+
+// ContainsKey will return true if the provided key is in the map
+func ContainsKey[T comparable, U any](source map[T]U, key T) bool {
+	for k := range source {
+		if k == key {
+			return true
+		}
+	}
+	return false
+}
+
+// First will find the first key value pair that matches the provided predicate
+func First[T comparable, U any](source map[T]U, predicate func(k T, v U) bool) (T, U, bool) {
+	for k, v := range source {
+		if predicate(k, v) {
+			return k, v, true
+		}
+	}
+	var blankKey T
+	var blankVal U
+	return blankKey, blankVal, false
+}
