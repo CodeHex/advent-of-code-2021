@@ -151,3 +151,30 @@ func CountIf[T any](source []T, predicate func(x T) bool) int {
 	}
 	return count
 }
+
+// Reverse will reverse the order of the slice
+func Reverse[T any](source []T) []T {
+	reversed := make([]T, len(source))
+	for i, val := range source {
+		reversed[len(source)-1-i] = val
+	}
+	return reversed
+}
+
+// Last will return the final element in the slice
+func Last[T any](source []T) T {
+	size := len(source)
+	if size == 0 {
+		var blank T
+		return blank
+	}
+	return source[size-1]
+}
+
+// TrimEnd will trim the final n elements from the end of the slice
+func TrimEnd[T any](source []T, n int) []T {
+	if n > len(source) {
+		return make([]T, 0)
+	}
+	return source[0 : len(source)-n]
+}
