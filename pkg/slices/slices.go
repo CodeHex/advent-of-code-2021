@@ -2,6 +2,7 @@ package slices
 
 import (
 	"constraints"
+	"sort"
 )
 
 // Filter will reduce a slice of elements based on the provided predicate
@@ -177,4 +178,18 @@ func TrimEnd[T any](source []T, n int) []T {
 		return make([]T, 0)
 	}
 	return source[0 : len(source)-n]
+}
+
+// Median will return the median value of odd length slices
+func Median[T constraints.Integer](source []T) T {
+	n := len(source)
+	if n%2 == 0 {
+		panic("median of even slices is not supported")
+	}
+	result := make([]T, n)
+	copy(result, source)
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i] < result[j]
+	})
+	return result[n/2]
 }

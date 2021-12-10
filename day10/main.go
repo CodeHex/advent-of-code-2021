@@ -4,7 +4,6 @@ import (
 	"adventofcode2021/pkg/fileparser"
 	"adventofcode2021/pkg/slices"
 	"fmt"
-	"sort"
 )
 
 func main() {
@@ -18,9 +17,8 @@ func main() {
 	fmt.Printf("[Part 1] Syntax error score %d\n", syntaxScore)
 
 	autoCompleteScores := slices.Map(incomplete, AutocompleteScoreFunc())
-	sort.Ints(autoCompleteScores)
-	middleIndex := ((len(autoCompleteScores) + 1) / 2) - 1
-	fmt.Printf("[Part 2] Autocomplete score %d\n", autoCompleteScores[middleIndex])
+	autoCompleteFinalScore := slices.Median(autoCompleteScores)
+	fmt.Printf("[Part 2] Autocomplete score %d\n", autoCompleteFinalScore)
 }
 
 type NavResult struct {
