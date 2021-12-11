@@ -78,8 +78,7 @@ func ReadCharMatrix[T convert.Convertable](filename string) matrices.Matrix[T] {
 }
 
 func ReadDigitMatrix(filename string) matrices.IntMatrix[int] {
-	baseMatrix := ReadCharMatrix[int](filename)
-	return matrices.IntMatrix[int]{Matrix: baseMatrix}
+	return matrices.NewIntMatrixFromBase(ReadCharMatrix[int](filename))
 }
 
 // Split will split a string similar to strings.Split, but convert the result to the appriopriate type

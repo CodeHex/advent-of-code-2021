@@ -9,8 +9,12 @@ type IntMatrix[T constraints.Integer] struct {
 	Matrix[T]
 }
 
+func NewIntMatrixFromBase[T constraints.Integer](base Matrix[T]) IntMatrix[T] {
+	return IntMatrix[T]{Matrix: base}
+}
+
 func NewIntMatrixFromData[T constraints.Integer](data [][]T) IntMatrix[T] {
-	return IntMatrix[T]{Matrix: NewMatrixFromData(data)}
+	return NewIntMatrixFromBase(NewMatrixFromData(data))
 }
 
 // Increment will increment the value at the location provided
