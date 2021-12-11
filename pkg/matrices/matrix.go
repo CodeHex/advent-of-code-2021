@@ -1,6 +1,8 @@
 package matrices
 
-import "adventofcode2021/pkg/slices"
+import (
+	"adventofcode2021/pkg/slices"
+)
 
 type Matrix[T any] [][]T
 
@@ -16,7 +18,7 @@ func NewMatrix[T any](rows, columns int) Matrix[T] {
 // NewMatrixFromLines creates a matrix where each line represents a row of the matrix.
 // The splitter convertes the line into component entries and the convert converts
 // the raw part into the required type
-func NewMatrixFromLines[T, U any](lines []string, splitter func(string) []U, converter func(U) T) Matrix[T] {
+func NewMatrixFromLines[T any, U any](lines []string, splitter func(string) []U, converter func(U) T) Matrix[T] {
 	m := make([][]T, len(lines))
 	for y, line := range lines {
 		parts := splitter(line)
@@ -49,4 +51,36 @@ func (m Matrix[T]) Get(x, y int) T {
 // Set will set an element of the matrix
 func (m Matrix[T]) Set(x, y int, val T) {
 	m[y][x] = val
+}
+
+// NumOfElements returns the number of elements in the matrix
+func (m Matrix[T]) NumOfElements() int {
+	i, j := m.Dimensions()
+	return i * j
+}
+
+// OutOfBounds indicates if the provided location exists in the matrix
+func (m Matrix[T]) OutOfBounds(x, y int) bool {
+	rows, columns := m.Dimensions()
+	return x < 0 || x > columns-1 || y < 0 || y > rows-1
+}
+
+// ForEachNeighbour performs the operation on itself and its closest neighbours
+func (m Matrix[T]) ForEachNeighbour(includeDiags bool, originX, originY int, op func(x, y int)) {
+	opIfNotOutOfBounds := func(i, j int) {
+		if !m.OutOfBounds(i, j) {
+			op(i, j)
+		}
+	}
+	opIfNotOutOfBounds(originX, originY+1)
+	opIfNotOutOfBounds(originX, originY-1)
+	opIfNotOutOfBounds(originX-1, originY)
+	opIfNotOutOfBounds(originX+1, originY)
+
+	if includeDiags {
+		opIfNotOutOfBounds(originX+1, originY+1)
+		opIfNotOutOfBounds(originX+1, originY-1)
+		opIfNotOutOfBounds(originX-1, originY+1)
+		opIfNotOutOfBounds(originX-1, originY-1)
+	}
 }
