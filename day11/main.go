@@ -1,48 +1,31 @@
 package main
 
 import (
-	"adventofcode2021/pkg/convert"
 	"adventofcode2021/pkg/fileparser"
 	"adventofcode2021/pkg/matrices"
-	"adventofcode2021/pkg/slices"
 	"fmt"
-	"strconv"
 )
 
 func main() {
-	lines := fileparser.ReadLines("day11/input.txt")
-	runeToStr := func(x rune) string { return string(x) }
-	splitter := func(x string) []string { return slices.Map([]rune(x), runeToStr) }
-
-	// Represents the heights of the seabed
-	data := matrices.NewIntMatrixFromLines(lines, splitter, convert.FuncFor[int]())
+	data := fileparser.ReadDigitMatrix("day11/input.txt")
 	octopi := NewOctopi(data)
 	octopi.RunSimulation()
 
-	fmt.Printf("[Part 1] After 100 steps, total flashes: %d\n", octopi.flashesAfter100Steps)
-	fmt.Printf("[Part 2] Until all octopi flash, steps taken: %d\n", octopi.firstSyncFlashStep)
+	fmt.Printf("[Part 1] After 100 steps, total flashes: %d\n%s\n", octopi.FlashesAfter100Steps, octopi.Snapshot100Steps)
+	fmt.Printf("[Part 2] Until all octopi flash, steps taken: %d\n%s", octopi.FirstSyncFlashStep, octopi.SnapshotFirstSync)
 }
 
 type Octopi struct {
 	step                 int
 	data                 matrices.IntMatrix[int]
-	flashesAfter100Steps int
-	firstSyncFlashStep   int
+	FlashesAfter100Steps int
+	Snapshot100Steps     string
+	FirstSyncFlashStep   int
+	SnapshotFirstSync    string
 }
 
 func NewOctopi(data matrices.IntMatrix[int]) *Octopi {
 	return &Octopi{data: data}
-}
-
-func (o *Octopi) String() string {
-	out := ""
-	for _, line := range o.data {
-		for _, val := range line {
-			out += strconv.Itoa(val)
-		}
-		out += "\n"
-	}
-	return out
 }
 
 func (o *Octopi) RunSimulation() {
@@ -56,12 +39,14 @@ func (o *Octopi) RunSimulation() {
 		totalFlashes += stepFlashes
 
 		if o.step == 100 {
-			o.flashesAfter100Steps = totalFlashes
+			o.FlashesAfter100Steps = totalFlashes
+			o.Snapshot100Steps = o.data.CompactString()
 		}
 
 		if syncFlashed && !syncFlashOccurred {
 			syncFlashOccurred = true
-			o.firstSyncFlashStep = o.step
+			o.FirstSyncFlashStep = o.step
+			o.SnapshotFirstSync = o.data.CompactString()
 		}
 	}
 }
@@ -76,7 +61,7 @@ func (o *Octopi) progressStep() (flashes int, allFlashed bool) {
 	o.data.ForEach(func(x, y int, energy int) {
 		total += o.checkFlash(x, y)
 	})
-	return total, o.data.NumOfElements() == total
+	return total, o.data.Size == total
 }
 
 func (o *Octopi) checkFlash(x, y int) int {

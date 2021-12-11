@@ -2,6 +2,8 @@ package fileparser
 
 import (
 	"adventofcode2021/pkg/convert"
+	"adventofcode2021/pkg/matrices"
+	"adventofcode2021/pkg/slices"
 	"adventofcode2021/pkg/tuples"
 	"fmt"
 	"os"
@@ -61,6 +63,23 @@ func ReadTypedLines[T any](filename string, constructor func(string) T) []T {
 func ReadCSVLine[T convert.Convertable](filename string) []T {
 	lines := ReadLines(filename)
 	return Split[T](lines[0], ",")
+}
+
+func ReadCharMatrix[T convert.Convertable](filename string) matrices.Matrix[T] {
+	lines := ReadLines(filename)
+	m := make([][]T, len(lines))
+	converter := convert.FuncFor[T]()
+	for y, line := range lines {
+		m[y] = slices.Map([]rune(line), func(x rune) T {
+			return converter(string(x))
+		})
+	}
+	return matrices.NewMatrixFromData(m)
+}
+
+func ReadDigitMatrix(filename string) matrices.IntMatrix[int] {
+	baseMatrix := ReadCharMatrix[int](filename)
+	return matrices.IntMatrix[int]{Matrix: baseMatrix}
 }
 
 // Split will split a string similar to strings.Split, but convert the result to the appriopriate type

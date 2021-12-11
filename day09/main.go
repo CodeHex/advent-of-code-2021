@@ -1,10 +1,8 @@
 package main
 
 import (
-	"adventofcode2021/pkg/convert"
 	"adventofcode2021/pkg/fileparser"
 	"adventofcode2021/pkg/matrices"
-	"adventofcode2021/pkg/slices"
 	"fmt"
 	"sort"
 )
@@ -12,16 +10,11 @@ import (
 const maxHeight = 9
 
 func main() {
-	lines := fileparser.ReadLines("day09/input.txt")
-	runeToStr := func(x rune) string { return string(x) }
-	splitter := func(x string) []string { return slices.Map([]rune(x), runeToStr) }
-
 	// Represents the heights of the seabed
-	seabed := matrices.NewIntMatrixFromLines(lines, splitter, convert.FuncFor[int]())
+	seabed := fileparser.ReadDigitMatrix("day09/input.txt")
 
 	// Represents if we have already mapped this point when mapping basins
-	rows, columns := seabed.Dimensions()
-	mapped := matrices.NewMatrix[bool](rows, columns)
+	mapped := matrices.NewMatrix[bool](seabed.Rows, seabed.Columns)
 
 	lowPoints := 0
 	riskLevel := 0
@@ -60,23 +53,18 @@ func main() {
 	fmt.Printf("[Part 2] Detected %d basins, largest 3 basins sizes multiplied is %d\n", len(basinSizes), outputBasinSize)
 }
 
-func mapBasin(seabed matrices.IntMatrix[int], mapped matrices.Matrix[bool], x, y int) int {
-	// Mark this point as mapped
-	rows, columns := seabed.Dimensions()
-	outOfBounds := x < 0 || x > columns-1 || y < 0 || y > rows-1
-
+func mapBasin(seabed matrices.IntMatrix[int], mapped matrices.Matrix[bool], pointX, pointY int) int {
 	// Ignore point if its out of bounds, already mapped or at the maximum height
-	if outOfBounds || mapped.Get(x, y) || seabed.Get(x, y) == maxHeight {
+	if mapped.Get(pointX, pointY) || seabed.Get(pointX, pointY) == maxHeight {
 		return 0
 	}
-	mapped.Set(x, y, true)
+	mapped.Set(pointX, pointY, true)
 
 	// Iterative determine the size by considering this point as 1 and
 	// adding the size of neighbouring points
 	size := 1
-	size += mapBasin(seabed, mapped, x+1, y)
-	size += mapBasin(seabed, mapped, x-1, y)
-	size += mapBasin(seabed, mapped, x, y-1)
-	size += mapBasin(seabed, mapped, x, y+1)
+	seabed.ForEachNeighbour(false, pointX, pointY, func(x, y int) {
+		size += mapBasin(seabed, mapped, x, y)
+	})
 	return size
 }
