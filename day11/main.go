@@ -44,13 +44,8 @@ func main() {
 		}
 	}
 
-	fmt.Println("[Part 1] After 100 steps")
-	fmt.Println(octopiView100Steps)
-	fmt.Printf("total flashes: %d\n", flashesAfter100Steps)
-	fmt.Println()
-	fmt.Println("[Part 2] Until all octopi flash")
-	fmt.Println(octopiViewFirstAllFlashed)
-	fmt.Printf("steps: %d\n", stepWhenFirstAllFlashed)
+	fmt.Printf("[Part 1] After 100 steps, total flashes: %d\n%s", flashesAfter100Steps, octopiView100Steps)
+	fmt.Printf("[Part 2] Until all octopi flash, steps taken: %d\n%s", stepWhenFirstAllFlashed, octopiViewFirstAllFlashed)
 }
 
 type Octopi matrices.IntMatrix[int]
