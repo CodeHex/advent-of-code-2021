@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	instructions := fileparser.ReadPairs[string, int]("day02/input.txt")
+	instructions := fileparser.ReadPairs[string, int]("day02/input.txt", " ")
 
 	pos, depth := calcBasicLoc(instructions)
 	result := pos * depth
