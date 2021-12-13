@@ -7,9 +7,23 @@ func NewEmptySet[T comparable]() Set[T] {
 	return make(Set[T])
 }
 
+// NewSetFromSlice generates an set based on a provided slice, any repeated elements will be deduped
+func NewSetFromSlice[T comparable](data []T) Set[T] {
+	result := NewEmptySet[T]()
+	for _, entry := range data {
+		result.Add(entry)
+	}
+	return result
+}
+
 // Add will add an element to a set
 func (s Set[T]) Add(entry T) {
 	s[entry] = struct{}{}
+}
+
+// Remove will remove an element from the set
+func (s Set[T]) Remove(entry T) {
+	delete(s, entry)
 }
 
 // Filter will generate a new set containing elements that match the predicate
@@ -32,4 +46,9 @@ func (s Set[T]) ToSlice() []T {
 		i++
 	}
 	return result
+}
+
+func (s Set[T]) IsMember(val T) bool {
+	_, ok := s[val]
+	return ok
 }

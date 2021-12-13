@@ -29,12 +29,16 @@ func ReadSingles[T convert.Convertable](filename string) []T {
 
 func ReadPairs[T, U convert.Convertable](filename string, separator string) []tuples.Pair[T, U] {
 	strParts := ReadSingles[string](filename)
-	result := make([]tuples.Pair[T, U], len(strParts))
+	return ReadPairsFromStrings[T, U](strParts, separator)
+}
+
+func ReadPairsFromStrings[T, U convert.Convertable](data []string, separator string) []tuples.Pair[T, U] {
+	result := make([]tuples.Pair[T, U], len(data))
 
 	convertKey := convert.FuncFor[T]()
 	convertValue := convert.FuncFor[U]()
 
-	for i, part := range strParts {
+	for i, part := range data {
 		vals := strings.Split(part, separator)
 		if len(vals) != 2 {
 			panic(fmt.Sprintf("expecting 2 parts, '%s'", part))
