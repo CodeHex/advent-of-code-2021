@@ -42,3 +42,7 @@ func FuncFor[T Convertable]() func(string) T {
 		panic("unsupported converter")
 	}
 }
+
+func Apply[T Convertable](in string) T {
+	return FuncFor[T]()(in)
+}
