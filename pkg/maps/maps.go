@@ -22,8 +22,27 @@ func SumValuesFor[T comparable, U constraints.Integer](source map[T]U, predicate
 	return total
 }
 
+// MaxValue will return the entry with the largest value
+func MaxValue[T comparable, U constraints.Integer](source map[T]U) (T, U) {
+	started := false
+	var maxKey T
+	var maxVal U
+	for key, val := range source {
+		if !started {
+			maxKey = key
+			maxVal = val
+			started = true
+		}
+		if val > maxVal {
+			maxKey = key
+			maxVal = val
+		}
+	}
+	return maxKey, maxVal
+}
+
 // MinValue will return the entry with the smallest value
-func MinValue[T constraints.Integer, U constraints.Integer](source map[T]U) (T, U) {
+func MinValue[T comparable, U constraints.Integer](source map[T]U) (T, U) {
 	started := false
 	var minKey T
 	var minVal U
