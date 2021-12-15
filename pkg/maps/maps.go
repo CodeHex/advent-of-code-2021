@@ -43,18 +43,27 @@ func MaxValue[T comparable, U constraints.Integer](source map[T]U) (T, U) {
 
 // MinValue will return the entry with the smallest value
 func MinValue[T comparable, U constraints.Integer](source map[T]U) (T, U) {
+	return MinMappedValue(source, func(u U) U { return u })
+}
+
+// MinMappedValue will return the entry with the smallest value returned from func
+func MinMappedValue[T comparable, U any, V constraints.Ordered](source map[T]U, op func(U) V) (T, U) {
 	started := false
 	var minKey T
 	var minVal U
+	var minCompare V
 	for key, val := range source {
 		if !started {
 			minKey = key
 			minVal = val
+			minCompare = op(val)
 			started = true
 		}
-		if val < minVal {
+		testCompare := op(val)
+		if testCompare < minCompare {
 			minKey = key
 			minVal = val
+			minCompare = testCompare
 		}
 	}
 	return minKey, minVal
