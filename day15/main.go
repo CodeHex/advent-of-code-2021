@@ -72,6 +72,9 @@ func NewSolver(data matrices.IntMatrix[int], repeat int) *PathSolver {
 	return solver
 }
 
+// Use [Dijkstra's_algorithm](https://en.wikipedia.org/wiki/Dijkstra's_algorithm) to
+// determine the shortest path. Uses a seperate list of nodes that are not distance = INFINITY
+// to optimise finding the next node to progress
 func (s *PathSolver) Solve() int {
 	for len(s.unvisited) > 0 {
 		// Find the next node to progress
