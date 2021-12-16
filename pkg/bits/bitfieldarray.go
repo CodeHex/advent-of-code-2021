@@ -35,10 +35,7 @@ func (b BitFieldArray) MostCommon() BitField {
 		}
 	}
 
-	result, err := NewBitField(resultBytes.String())
-	if err != nil {
-		panic(err)
-	}
+	result := NewBitField(resultBytes.String())
 	return result
 }
 

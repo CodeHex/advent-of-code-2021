@@ -22,11 +22,7 @@ func intConvert[T Convertable](x string) T {
 }
 
 func bitFieldConvert[T Convertable](x string) T {
-	r, err := bits.NewBitField(x)
-	if err != nil {
-		panic(err)
-	}
-	return (interface{})(r).(T)
+	return (interface{})(bits.NewBitField(x)).(T)
 }
 
 func FuncFor[T Convertable]() func(string) T {
