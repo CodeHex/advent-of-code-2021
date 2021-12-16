@@ -6,19 +6,19 @@ import (
 )
 
 type BitField struct {
-	Value  uint
+	Value  uint64
 	Length int
 	str    string
 }
 
-func NewBitField(bin string) (BitField, error) {
+func NewBitField(bin string) BitField {
 	str := bin
 	length := len(bin)
-	val, err := strconv.ParseUint(bin, 2, 32)
+	val, err := strconv.ParseUint(bin, 2, 64)
 	if err != nil {
-		return BitField{}, err
+		panic(err)
 	}
-	return BitField{Value: uint(val), Length: length, str: str}, nil
+	return BitField{Value: uint64(val), Length: length, str: str}
 }
 
 func (b BitField) String() string {
@@ -39,9 +39,6 @@ func (b BitField) Invert() BitField {
 			inverted.WriteString("0")
 		}
 	}
-	result, err := NewBitField(inverted.String())
-	if err != nil {
-		panic(err)
-	}
+	result := NewBitField(inverted.String())
 	return result
 }
