@@ -22,6 +22,22 @@ func SumValuesFor[T comparable, U constraints.Integer](source map[T]U, predicate
 	return total
 }
 
+// MaxKey will return the largest key
+func MaxKey[T constraints.Ordered, U any](source map[T]U) T {
+	started := false
+	var maxKey T
+	for key := range source {
+		if !started {
+			maxKey = key
+			started = true
+		}
+		if key > maxKey {
+			maxKey = key
+		}
+	}
+	return maxKey
+}
+
 // MaxValue will return the entry with the largest value
 func MaxValue[T comparable, U constraints.Integer](source map[T]U) (T, U) {
 	started := false
