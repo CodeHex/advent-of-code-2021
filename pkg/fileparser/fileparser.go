@@ -70,7 +70,10 @@ func ReadCSVLine[T convert.Convertable](filename string) []T {
 }
 
 func ReadCharMatrix[T convert.Convertable](filename string) matrices.Matrix[T] {
-	lines := ReadLines(filename)
+	return ReadCharMatrixFromLines[T](ReadLines(filename))
+}
+
+func ReadCharMatrixFromLines[T convert.Convertable](lines []string) matrices.Matrix[T] {
 	m := make([][]T, len(lines))
 	converter := convert.FuncFor[T]()
 	for y, line := range lines {
