@@ -8,13 +8,12 @@ import (
 )
 
 func main() {
-	lines := fileparser.ReadLines("day20/sample.txt")
+	lines := fileparser.ReadLines("day20/input.txt")
 
 	enhancer := NewEnhancer(lines)
 	for i := 1; i <= 50; i++ {
 		enhancer.Enhance()
 		if i == 2 {
-			enhancer.PrintField()
 			fmt.Println("[Part 1] Number of pixels after 2 enhances:", enhancer.CountPixels())
 		}
 	}
