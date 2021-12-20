@@ -79,3 +79,13 @@ func (m Matrix[T]) ForEachNeighbour(includeDiags bool, originX, originY int, op 
 		opIfNotOutOfBounds(originX-1, originY-1)
 	}
 }
+
+func (m Matrix[T]) Expand(size int) Matrix[T] {
+	newMatrix := NewMatrix[T](m.Rows+(2*size), m.Columns+(2*size))
+	for j := 0; j < m.Rows; j++ {
+		for i := 0; i < m.Columns; i++ {
+			newMatrix.Set(i+size, j+size, m.Get(i, j))
+		}
+	}
+	return newMatrix
+}

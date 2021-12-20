@@ -21,6 +21,20 @@ func NewBitField(bin string) BitField {
 	return BitField{Value: uint64(val), Length: length, str: str}
 }
 
+func NewBitFieldForVal(val uint64, length int) BitField {
+	b := BitField{Value: val, Length: length}
+	str := ""
+	for i := 0; i < length; i++ {
+		if b.Get(i) {
+			str += "1"
+		} else {
+			str += "0"
+		}
+	}
+	b.str = str
+	return b
+}
+
 func (b BitField) String() string {
 	return b.str
 }
