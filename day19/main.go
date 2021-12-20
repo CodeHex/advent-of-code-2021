@@ -13,11 +13,13 @@ func main() {
 
 	scanners := ParseScanners(lines)
 
-	unalignedScanners := scanners[1:]          // Scanners where we know how to orientate to origin
-	alignedScanners := []*Scanner{scanners[0]} // Scanners we don't know relative to origin scanner 0
+	unalignedScanners := scanners[1:]          // Scanners where we don't know how to orientate to origin
+	alignedScanners := []*Scanner{scanners[0]} // Scanners where we have know how to orientate to origin
 
 	type attempt struct{ unaligned, aligned int }
 	tries := make(map[attempt]struct{})
+	// Loop tthough all unaligned scanners and attempt to align with
+	// already aligned scanners
 	for len(unalignedScanners) > 0 {
 		fmt.Printf("Aligning %d scanner(s)...\n", len(unalignedScanners))
 		for _, unaligned := range unalignedScanners {
@@ -28,13 +30,13 @@ func main() {
 					continue
 				}
 				tries[thisAttempt] = struct{}{}
-				success := AttemptToAlign(unaligned, aligned)
-				if success {
+				if ok := AttemptToAlign(unaligned, aligned); ok {
 					break
 				}
 			}
 		}
-		unalignedScanners, alignedScanners = slices.Divide(scanners, func(s *Scanner) bool { return s.transformToOrigin == nil })
+		// Reset lists based on what has been aligned
+		alignedScanners, unalignedScanners = slices.Divide(scanners, IsAligned)
 	}
 
 	// Loop through all scanners, transform the beacons and add them to the list of found beacons
@@ -46,6 +48,8 @@ func main() {
 	}
 	fmt.Println("[Part 1] Total number of beacons:", len(finalBeacons))
 
+	// Loop through combinations of 2 scanners and calculate distance between them
+	// based on how they are transformed to origin
 	maxDist := 0
 	for _, s1 := range alignedScanners {
 		for _, s2 := range alignedScanners {
@@ -58,6 +62,10 @@ func main() {
 	fmt.Println("[Part 2] Max distance between scanners:", maxDist)
 }
 
+func IsAligned(s *Scanner) bool {
+	return s.transformToOrigin != nil
+}
+
 func ParseScanners(lines []string) []*Scanner {
 	markers := []int{}
 	for i, line := range lines {
@@ -65,7 +73,6 @@ func ParseScanners(lines []string) []*Scanner {
 			markers = append(markers, i)
 		}
 	}
-
 	scanners := []*Scanner{}
 	for i := range markers {
 		start := markers[i]
@@ -105,6 +112,7 @@ func NewScanner(data []string) *Scanner {
 		}
 	}
 	s := &Scanner{label: label, beacons: coords}
+	// Define the origin scanner as aligned at 0,0,0 (no rotatio required)
 	if label == 0 {
 		s.transformToOrigin = &Coord{0, 0, 0}
 		s.rotateToOrigin = func(c Coord) Coord { return c }
@@ -120,6 +128,7 @@ func (s *Scanner) String() string {
 	return out
 }
 
+// Defines all possible rotation mappings of a cube (24 possible mapping)
 var rotations = []Rotation{
 	func(c Coord) Coord { return Coord{c.x, c.y, c.z} },
 	func(c Coord) Coord { return Coord{c.x, -1 * c.z, c.y} },
@@ -153,17 +162,18 @@ var rotations = []Rotation{
 }
 
 func AttemptToAlign(unaligned *Scanner, aligned *Scanner) bool {
-	alignedBeacons := []Coord{}
-	for _, b := range aligned.beacons {
-		alignedBeacons = append(alignedBeacons, aligned.rotateToOrigin(b))
-	}
+	// Create a list of beacons aligned to origin, from the alligned scaller
+	mapToOriginFunc := func(b Coord) Coord { return aligned.rotateToOrigin(b) }
+	alignedBeacons := slices.Map(aligned.beacons, mapToOriginFunc)
 
+	// Loop through all rotations
 	for _, r := range rotations {
-		rotatedBeaconsUnaligned := []Coord{}
-		for _, b := range unaligned.beacons {
-			rotatedBeaconsUnaligned = append(rotatedBeaconsUnaligned, r(b))
-		}
 
+		// Create a list of beacons from the unaligned scanner, aligned to this test rotation
+		testRotationFunc := func(b Coord) Coord { return r(b) }
+		rotatedBeaconsUnaligned := slices.Map(unaligned.beacons, testRotationFunc)
+
+		// Compare the sets of beacons to see if they match
 		shift, ok := CompareBeacons(alignedBeacons, rotatedBeaconsUnaligned)
 		if !ok {
 			continue
@@ -179,16 +189,24 @@ func AttemptToAlign(unaligned *Scanner, aligned *Scanner) bool {
 }
 
 func CompareBeacons(beacons1 []Coord, beacons2 []Coord) (Coord, bool) {
+	// Loop through each combination of the two sets of beacons.
+	// For each combo, create a test shift vector that maps b2 beacons to b1
 	for _, b1 := range beacons1 {
 		for _, b2 := range beacons2 {
 			matched := 0
 			testShift := SubtractCoords(b1, b2)
+
+			// Loop through the second set of beacons and apply the test shift
+			// counting how many beacons line up exactly with beacons in the first set
 			for _, test := range beacons2 {
 				shifted := AddCoords(test, testShift)
 				if slices.Contains(beacons1, shifted) {
 					matched++
 				}
 			}
+			// If we have lined up more than 12, these becons match. Return the shift
+			// vector required to map the second set of beacons to the first set (and
+			// hence is the shift from the two scanners)
 			if matched >= 12 {
 				// BINGO
 				return testShift, true
