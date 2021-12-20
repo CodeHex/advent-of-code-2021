@@ -80,11 +80,16 @@ func (m Matrix[T]) ForEachNeighbour(includeDiags bool, originX, originY int, op 
 	}
 }
 
-func (m Matrix[T]) Expand(size int) Matrix[T] {
-	newMatrix := NewMatrix[T](m.Rows+(2*size), m.Columns+(2*size))
-	for j := 0; j < m.Rows; j++ {
-		for i := 0; i < m.Columns; i++ {
-			newMatrix.Set(i+size, j+size, m.Get(i, j))
+// Expand will increase the size the matrix. The value of these new entries are provided
+func (m Matrix[T]) Expand(sizeLeft, sizeRight, sizeTop, sizeBottom int, val T) Matrix[T] {
+	newMatrix := NewMatrix[T](m.Rows+(sizeTop+sizeBottom), m.Columns+(sizeLeft+sizeRight))
+	for j := 0; j < newMatrix.Rows; j++ {
+		for i := 0; i < newMatrix.Columns; i++ {
+			if i < sizeLeft || i > newMatrix.Columns-sizeRight-1 || j < sizeTop || j > newMatrix.Rows-sizeBottom-1 {
+				newMatrix.Set(i, j, val)
+			} else {
+				newMatrix.Set(i, j, m.Get(i-sizeLeft, j-sizeTop))
+			}
 		}
 	}
 	return newMatrix

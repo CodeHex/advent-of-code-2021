@@ -8,68 +8,101 @@ import (
 )
 
 func main() {
-	lines := fileparser.ReadLines("day20/input.txt")
+	lines := fileparser.ReadLines("day20/sample.txt")
 
+	enhancer := NewEnhancer(lines)
+	for i := 1; i <= 50; i++ {
+		enhancer.Enhance()
+		if i == 2 {
+			enhancer.PrintField()
+			fmt.Println("[Part 1] Number of pixels after 2 enhances:", enhancer.CountPixels())
+		}
+	}
+	fmt.Println("[Part 2] Number of pixels after 50 enhances:", enhancer.CountPixels())
+}
+
+type Enhancer struct {
+	alg                     map[string]string
+	darkMapPixel            string
+	flipDarkMapAfterEnhance bool
+	trench                  matrices.Matrix[string]
+}
+
+func NewEnhancer(lines []string) *Enhancer {
+	alg := newAlg(lines[0])
+	return &Enhancer{
+		alg:                     alg,
+		darkMapPixel:            ".",                     // Tile to use when extending the map
+		flipDarkMapAfterEnhance: alg["........."] == "#", // Indicates that after an enhance, a pixel woth all dark pixels will become bright
+		trench:                  fileparser.ReadCharMatrixFromLines[string](lines[2:]),
+	}
+}
+
+func newAlg(data string) map[string]string {
+	if len(data) != 512 {
+		panic("unexpected algorithm length")
+	}
 	alg := make(map[string]string)
 	for i := 0; i < 512; i++ {
+		// Encode the number into a 9 bit value
 		b := bits.NewBitFieldForVal(uint64(i), 9)
-		out := ""
-		for i := 0; i < 9; i++ {
+		key := ""
+		for i := 0; i < b.Length; i++ {
+			pixelVal := "."
 			if b.Get(i) {
-				out += "#"
-			} else {
-				out += "."
+				pixelVal = "#"
 			}
+			key += pixelVal
 		}
-		alg[out] = string(lines[0][i])
+		alg[key] = string(data[i])
 	}
-
-	field := fileparser.ReadCharMatrixFromLines[string](lines[2:])
-
-	flip := alg["........."] == "#"
-	def := "."
-	for i := 0; i < 50; i++ {
-		field = field.Expand(2)
-		field.ForEach(func(x, y int, value string) {
-			if value == "" {
-				field.Set(x, y, def)
-			}
-		})
-		field = Enhance(field, alg, def)
-		if flip {
-
-			if def == "." {
-				def = "#"
-			} else {
-				def = "."
-			}
-		}
-	}
-
-	fmt.Println(CountPixels(field))
+	return alg
 }
 
-func Enhance(f matrices.Matrix[string], alg map[string]string, d string) matrices.Matrix[string] {
-	result := matrices.NewMatrix[string](f.Rows, f.Columns)
-	f.ForEach(func(x, y int, value string) {
-		out := Pixel(d, f, x-1, y-1) + Pixel(d, f, x, y-1) + Pixel(d, f, x+1, y-1) +
-			Pixel(d, f, x-1, y) + Pixel(d, f, x, y) + Pixel(d, f, x+1, y) +
-			Pixel(d, f, x-1, y+1) + Pixel(d, f, x, y+1) + Pixel(d, f, x+1, y+1)
-		result.Set(x, y, alg[out])
+func (e *Enhancer) Enhance() {
+	// Expand matrix by one row/column on all sides
+	e.trench = e.trench.Expand(1, 1, 1, 1, e.darkMapPixel)
+	result := matrices.NewMatrix[string](e.trench.Rows, e.trench.Columns)
+
+	// Calculate algorithm key based on all neighbours
+	e.trench.ForEach(func(x, y int, value string) {
+		key := e.SurroundingPixelsKey(x, y)
+		result.Set(x, y, e.alg[key])
 	})
-	return result
-}
+	e.trench = result
 
-func Pixel(d string, field matrices.Matrix[string], x, y int) string {
-	if x < 0 || y < 0 || x > field.Columns-1 || y > field.Rows-1 {
-		return d
+	// Flip the pixel to use for out of bounds if the algorithm key flips them
+	if e.flipDarkMapAfterEnhance {
+		if e.darkMapPixel == "#" {
+			e.darkMapPixel = "."
+		} else {
+			e.darkMapPixel = "#"
+		}
 	}
-	return field.Get(x, y)
 }
 
-func CountPixels(field matrices.Matrix[string]) int {
+func (e *Enhancer) SurroundingPixelsKey(x, y int) string {
+	return e.Pixel(x-1, y-1) +
+		e.Pixel(x, y-1) +
+		e.Pixel(x+1, y-1) +
+		e.Pixel(x-1, y) +
+		e.Pixel(x, y) +
+		e.Pixel(x+1, y) +
+		e.Pixel(x-1, y+1) +
+		e.Pixel(x, y+1) +
+		e.Pixel(x+1, y+1)
+}
+
+func (e *Enhancer) Pixel(x, y int) string {
+	if x < 0 || y < 0 || x > e.trench.Columns-1 || y > e.trench.Rows-1 {
+		return e.darkMapPixel
+	}
+	return e.trench.Get(x, y)
+}
+
+func (e *Enhancer) CountPixels() int {
 	count := 0
-	field.ForEach(func(x, y int, value string) {
+	e.trench.ForEach(func(x, y int, value string) {
 		if value == "#" {
 			count++
 		}
@@ -77,10 +110,10 @@ func CountPixels(field matrices.Matrix[string]) int {
 	return count
 }
 
-func PrintField(field matrices.Matrix[string]) {
-	for j := 0; j < field.Rows; j++ {
-		for i := 0; i < field.Columns; i++ {
-			fmt.Printf(field.Get(i, j))
+func (e *Enhancer) PrintField() {
+	for j := 0; j < e.trench.Rows; j++ {
+		for i := 0; i < e.trench.Columns; i++ {
+			fmt.Printf(e.trench.Get(i, j))
 		}
 		fmt.Println()
 	}
