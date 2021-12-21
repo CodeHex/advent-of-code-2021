@@ -106,3 +106,12 @@ func First[T comparable, U any](source map[T]U, predicate func(k T, v U) bool) (
 	var blankVal U
 	return blankKey, blankVal, false
 }
+
+// AnyKey returns an unspecified key from the map
+func AnyKey[T comparable, U any](source map[T]U) T {
+	for k := range source {
+		return k
+	}
+	var blankKey T
+	return blankKey
+}
