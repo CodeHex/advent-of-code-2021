@@ -44,8 +44,8 @@ func ReadPairsFromStrings[T, U convert.Convertable](data []string, separator str
 			panic(fmt.Sprintf("expecting 2 parts, '%s'", part))
 		}
 		result[i] = tuples.Pair[T, U]{
-			Key:   convertKey(vals[0]),
-			Value: convertValue(vals[1]),
+			Key:   convertKey(strings.TrimSpace(vals[0])),
+			Value: convertValue(strings.TrimSpace(vals[1])),
 		}
 	}
 	return result
