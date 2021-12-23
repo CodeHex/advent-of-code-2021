@@ -21,6 +21,13 @@ func (s Set[T]) Add(entry T) {
 	s[entry] = struct{}{}
 }
 
+// AddSlice will add multiple elements to a set
+func (s Set[T]) AddSlice(entries []T) {
+	for _, entry := range entries {
+		s.Add(entry)
+	}
+}
+
 // Remove will remove an element from the set
 func (s Set[T]) Remove(entry T) {
 	delete(s, entry)
@@ -51,4 +58,13 @@ func (s Set[T]) ToSlice() []T {
 func (s Set[T]) IsMember(val T) bool {
 	_, ok := s[val]
 	return ok
+}
+
+// SumWeighted will sum all values in the set using the provided weighting function
+func (s Set[T]) SumWeighted(weightFunc func(x T) int) int {
+	var sum int
+	for k := range s {
+		sum += weightFunc(k)
+	}
+	return sum
 }
