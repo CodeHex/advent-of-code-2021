@@ -44,6 +44,16 @@ func Contains[T comparable](source []T, element T) bool {
 	return false
 }
 
+// ContainsAny returns if any of the elements provided in the slice exist in the source
+func ContainsAny[T comparable](source []T, elements []T) bool {
+	for _, ele := range elements {
+		if Contains(source, ele) {
+			return true
+		}
+	}
+	return false
+}
+
 // Divide will split a slice of elements into 2 slices, with the first slice elements matching
 // the predicate, the second slice elements do not
 func Divide[T any](source []T, predicate func(T) bool) ([]T, []T) {
@@ -192,4 +202,14 @@ func Median[T constraints.Integer](source []T) T {
 		return result[i] < result[j]
 	})
 	return result[n/2]
+}
+
+// IndexOf returns the index where the first occurence of val is, otherwise -1 if not found
+func IndexOf[T comparable](source []T, val T) int {
+	for i, v := range source {
+		if v == val {
+			return i
+		}
+	}
+	return -1
 }
