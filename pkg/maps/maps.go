@@ -115,3 +115,12 @@ func AnyKey[T comparable, U any](source map[T]U) T {
 	var blankKey T
 	return blankKey
 }
+
+// Keys returns all keys in the map
+func Keys[T comparable, U any](source map[T]U) []T {
+	var result []T
+	for k := range source {
+		result = append(result, k)
+	}
+	return result
+}
